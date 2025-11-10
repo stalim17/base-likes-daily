@@ -3,117 +3,184 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Base Likes — Daily</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0052ff">
 <style>
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial; margin:0; padding:0; display:flex; min-height:100vh; align-items:center; justify-content:center; background:#0b1220; color:#e8eefc;}
-  .card{width:min(520px,92vw); background:#0f172a; border:1px solid #1e293b; border-radius:16px; padding:24px; box-shadow:0 10px 40px rgba(0,0,0,.4)}
-  h1{font-size:22px; margin:0 0 4px}
-  .sub{opacity:.8; margin:0 0 16px}
-  .row{display:flex; gap:10px; margin:14px 0}
-  button{flex:1; padding:12px 14px; border-radius:12px; border:0; cursor:pointer; font-weight:600}
-  #connect{background:#2563eb; color:white}
-  #likeBtn{background:#22c55e; color:#0b1220}
-  #likeBtn[disabled]{opacity:.5; cursor:not-allowed}
-  .stat{display:flex; gap:12px; margin-top:12px; font-size:14px}
-  .pill{background:#111827; border:1px solid #1f2937; padding:6px 10px; border-radius:999px}
-  .warn{margin-top:10px; font-size:13px; opacity:.85}
-  footer{margin-top:18px; opacity:.6; font-size:12px}
+  :root{--base:#0052ff;--bg1:#0a0f1f;--bg2:#06142e;--glass:rgba(255,255,255,.08);--stroke:rgba(255,255,255,.14);--text:#eaf0ff;--muted:#b7c3ff}
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial;color:var(--text);
+       background:radial-gradient(1200px 800px at 20% 10%, #0a2fff55, transparent 60%),
+                  radial-gradient(1000px 700px at 90% 100%, #00a3ff33, transparent 60%),
+                  linear-gradient(160deg, var(--bg1), var(--bg2)); overflow:hidden}
+  .wrap{position:relative;height:100%;width:100%;display:grid;place-items:center;padding:24px}
+  .card{position:relative;width:min(560px,92vw);padding:28px 24px 22px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.05));
+        border:1px solid var(--stroke);border-radius:20px;backdrop-filter:blur(10px);box-shadow:0 20px 70px rgba(0,0,0,.45)}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .logo{width:28px;height:28px;background:var(--base);border-radius:8px;display:grid;place-items:center}
+  .logo svg{width:18px;height:18px;color:#fff}
+  h1{margin:0;font-size:22px}.sub{margin:4px 0 16px;color:var(--muted);font-size:14px}
+  .row{display:flex;gap:10px}.row a{text-decoration:none}
+  button{flex:1;padding:12px 14px;border-radius:12px;border:0;cursor:pointer;font-weight:700;letter-spacing:.2px;transition:.15s transform ease,.15s opacity ease}
+  #connect{background:#0b56ff;color:#fff} #likeBtn{background:#25d366;color:#081021}
+  #likeBtn[disabled]{opacity:.55;cursor:not-allowed} button:active{transform:translateY(1px)}
+  .stats{display:flex;gap:10px;margin:14px 0 6px;flex-wrap:wrap}
+  .pill{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--glass);border:1px solid var(--stroke);font-size:14px;color:#e6edff}
+  .dot{width:8px;height:8px;border-radius:50%;background:#9db2ff}
+  .status{margin-top:8px;font-size:13px;color:#c8d4ff} .warn{color:#ffd1d1}
+  footer{margin-top:14px;font-size:12px;color:#9fb2ff7a}
+  @media (max-width:420px){.row{flex-direction:column}}
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>❤️ Base Likes — Daily</h1>
-    <p class="sub">하루에 한 번만 누를 수 있어요. (24h 쿨다운)</p>
-    <div class="row">
-      <button id="connect">Connect Wallet</button>
-      <button id="likeBtn" disabled>Send like()</button>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+        </div>
+        <h1>Base Likes — Daily</h1>
+      </div>
+      <p class="sub">하루에 한 번만 누를 수 있어요 (24h 쿨다운). Base Mainnet 8453</p>
+
+      <div class="row">
+        <button id="connect">Connect Wallet</button>
+        <button id="likeBtn" disabled>Send like()</button>
+      </div>
+
+      <div class="stats">
+        <div class="pill"><span class="dot"></span> totalLikes: <strong id="tot">-</strong></div>
+        <div class="pill"><span class="dot"></span> myLikes: <strong id="mine">-</strong></div>
+        <div class="pill"><span class="dot"></span> cooldown: <strong id="cd">-</strong></div>
+      </div>
+
+      <div id="status" class="status">지갑을 연결한 뒤 like()를 누르세요.</div>
+      <div id="helpers" class="status" style="display:none"></div>
+      <footer>© BaseLikesDaily • contract: 0xB16A...6138</footer>
     </div>
-    <div class="stat">
-      <div class="pill">totalLikes: <span id="tot">-</span></div>
-      <div class="pill">myLikes: <span id="mine">-</span></div>
-      <div class="pill">cooldown: <span id="cd">-</span></div>
-    </div>
-    <p id="status" class="warn">지갑 연결 후 like()를 누르면 됩니다. (Base Mainnet)</p>
-    <footer>© BaseLikesDaily • on Base 8453</footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script>
-    const CONTRACT_ADDRESS = "0xB16A2f6a57Bbac10c67df5Ed6C24E7a9e70f6138"; // ✅ 네 컨트랙트 주소
+<!-- ethers.js with fallback -->
+<script>
+(function loadEthers(){
+  const s=document.createElement('script');
+  s.src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js";
+  s.onerror=function(){
+    const f=document.createElement('script');
+    f.src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js";
+    document.body.appendChild(f);
+  };
+  document.body.appendChild(s);
+})();
+</script>
 
-    const ABI = [
-      {"inputs":[],"name":"like","outputs":[],"stateMutability":"nonpayable","type":"function"},
-      {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastLikedAt","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-      {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"likesBy","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-      {"inputs":[],"name":"totalLikes","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
-    ];
+<script>
+  const CONTRACT_ADDRESS = "0xB16A2f6a57Bbac10c67df5Ed6C24E7a9e70f6138";
+  const ABI = [
+    {"inputs":[],"name":"like","outputs":[],"stateMutability":"nonpayable","type":"function"},
+    {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastLikedAt","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+    {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"likesBy","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+    {"inputs":[],"name":"totalLikes","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
+  ];
 
-    let provider, signer, contract, account;
+  const DAPP_URL = "https://stalim17.github.io/base-likes-daily/";
+  const MM_DEEPLINK = "metamask://dapp/stalim17.github.io/base-likes-daily/";
+  const CBW_DEEPLINK = "https://go.cb-w.com/dapp?cb_url="+encodeURIComponent(DAPP_URL);
 
-    async function ensureBase(p){
-      const hex8453 = "0x2105";
-      const net = await p.getNetwork();
-      if (net.chainId !== 8453){
-        try {
-          await ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId: hex8453 }] });
-        } catch (e){
-          if (e.code === 4902){
-            await ethereum.request({ method:"wallet_addEthereumChain", params:[{
-              chainId: hex8453, chainName:"Base Mainnet",
-              nativeCurrency:{ name:"ETH", symbol:"ETH", decimals:18 },
-              rpcUrls:["https://mainnet.base.org"], blockExplorerUrls:["https://basescan.org"]
-            }]});
-          } else { throw e; }
-        }
+  const $ = id => document.getElementById(id);
+  function fmtSec(s){ if(s<=0) return "ready"; const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=Math.floor(s%60); return `${h}h ${m}m ${sec}s`; }
+
+  function getInjectedProvider() {
+    const eth = window.ethereum;
+    if (!eth) return null;
+    if (eth.providers && Array.isArray(eth.providers)) {
+      const mm = eth.providers.find(p => p.isMetaMask);
+      return mm || eth.providers[0];
+    }
+    return eth;
+  }
+
+  function showHelp(reason){
+    const helpers = $('helpers'); helpers.style.display='block';
+    let msg = '지갑이 인식되지 않았어요.<br>모바일은 <b>메타마스크 앱 브라우저</b> 또는 <b>코인베이스 월렛 앱</b>으로 열어주세요.';
+    if (reason==='noEthereum') {
+      msg += '<br><div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">' +
+             `<a href="${MM_DEEPLINK}" style="background:#0b56ff;color:#fff;padding:8px 12px;border-radius:10px">Open in MetaMask</a>` +
+             `<a href="${CBW_DEEPLINK}" style="background:#2b6cff;color:#fff;padding:8px 12px;border-radius:10px">Open in Coinbase Wallet</a>` +
+             '</div><div style="margin-top:8px;font-size:12px;opacity:.85">PC는 크롬/브레이브 + 메타마스크 확장 설치 후 새로고침.</div>`;
+    }
+    helpers.innerHTML = msg;
+  }
+
+  let provider, signer, contract, account;
+
+  async function ensureBase(p){
+    const hex8453 = "0x2105";
+    const net = await p.getNetwork();
+    if (net.chainId !== 8453){
+      try{
+        await ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId: hex8453 }] });
+      }catch(e){
+        if(e.code===4902){
+          await ethereum.request({ method:"wallet_addEthereumChain", params:[{
+            chainId:hex8453, chainName:"Base Mainnet",
+            nativeCurrency:{ name:"ETH", symbol:"ETH", decimals:18 },
+            rpcUrls:["https://mainnet.base.org"], blockExplorerUrls:["https://basescan.org"]
+          }]});
+        } else { throw e; }
       }
     }
+  }
 
-    function fmtSec(s){
-      if (s<=0) return "ready";
-      const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = Math.floor(s%60);
-      return `${h}h ${m}m ${sec}s`;
-    }
-
-    async function refresh(){
-      const tot = await contract.totalLikes();
-      document.getElementById("tot").innerText = tot.toString();
-      if (account){
-        const mine = await contract.likesBy(account);
-        document.getElementById("mine").innerText = mine.toString();
+  async function refresh(){
+    try{
+      const tot = await contract.totalLikes(); $('tot').innerText = tot.toString();
+      if(account){
+        const mine = await contract.likesBy(account); $('mine').innerText = mine.toString();
         const last = await contract.lastLikedAt(account);
         const now = Math.floor(Date.now()/1000);
-        const remain = 86400 - (now - last.toNumber());
-        document.getElementById("cd").innerText = fmtSec(remain);
+        const remain = 86400 - (now - (last.toNumber ? last.toNumber(): Number(last)));
+        $('cd').innerText = fmtSec(remain);
       }
-    }
+    }catch(e){}
+  }
 
-    async function connect(){
-      if (!window.ethereum){ alert("Please install MetaMask"); return; }
-      await ethereum.request({ method:"eth_requestAccounts" });
-      provider = new ethers.providers.Web3Provider(window.ethereum);
+  async function connect(){
+    try{
+      const injected = getInjectedProvider();
+      if(!injected){ showHelp('noEthereum'); $('status').classList.add('warn'); $('status').innerText='지갑이 감지되지 않았습니다.'; return; }
+      await injected.request({ method:"eth_requestAccounts" });
+      provider = new ethers.providers.Web3Provider(injected);
       await ensureBase(provider);
       signer = provider.getSigner();
       account = await signer.getAddress();
       contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
-      document.getElementById("status").innerText = "Wallet connected on Base";
-      document.getElementById("likeBtn").disabled = false;
+      $('status').classList.remove('warn');
+      $('status').innerText = "Wallet connected ✅";
+      $('likeBtn').disabled = false;
       await refresh();
+    }catch(e){
+      $('status').classList.add('warn');
+      $('status').innerText = "연결 실패: " + (e?.message || e);
     }
+  }
 
-    async function like(){
-      try{
-        document.getElementById("status").innerText = "Sending tx...";
-        const tx = await contract.like();
-        document.getElementById("status").innerText = "Waiting confirmation... " + tx.hash;
-        await tx.wait();
-        await refresh();
-        document.getElementById("status").innerText = "✅ Done! Thanks for your like.";
-      }catch(e){
-        document.getElementById("status").innerText = "❌ " + (e?.message || e);
-      }
+  async function like(){
+    try{
+      $('status').classList.remove('warn');
+      $('status').innerText = "Sending tx…";
+      const tx = await contract.like();
+      $('status').innerText = "Waiting confirmation… " + tx.hash;
+      await tx.wait(); await refresh();
+      $('status').innerText = "✅ Thanks! Your like has been recorded on Base.";
+    }catch(e){
+      $('status').classList.add('warn');
+      $('status').innerText = "실패: " + (e?.message || e);
     }
+  }
 
-    document.getElementById("connect").onclick = connect;
-    document.getElementById("likeBtn").onclick = like;
-  </script>
+  $('connect').onclick = connect;
+  $('likeBtn').onclick = like;
+</script>
 </body>
 </html>
