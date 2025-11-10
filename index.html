@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Base Likes — Daily</title>
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial; margin:0; padding:0; display:flex; min-height:100vh; align-items:center; justify-content:center; background:#0b1220; color:#e8eefc;}
+  .card{width:min(520px,92vw); background:#0f172a; border:1px solid #1e293b; border-radius:16px; padding:24px; box-shadow:0 10px 40px rgba(0,0,0,.4)}
+  h1{font-size:22px; margin:0 0 4px}
+  .sub{opacity:.8; margin:0 0 16px}
+  .row{display:flex; gap:10px; margin:14px 0}
+  button{flex:1; padding:12px 14px; border-radius:12px; border:0; cursor:pointer; font-weight:600}
+  #connect{background:#2563eb; color:white}
+  #likeBtn{background:#22c55e; color:#0b1220}
+  #likeBtn[disabled]{opacity:.5; cursor:not-allowed}
+  .stat{display:flex; gap:12px; margin-top:12px; font-size:14px}
+  .pill{background:#111827; border:1px solid #1f2937; padding:6px 10px; border-radius:999px}
+  .warn{margin-top:10px; font-size:13px; opacity:.85}
+  footer{margin-top:18px; opacity:.6; font-size:12px}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>❤️ Base Likes — Daily</h1>
+    <p class="sub">하루에 한 번만 누를 수 있어요. (24h 쿨다운)</p>
+    <div class="row">
+      <button id="connect">Connect Wallet</button>
+      <button id="likeBtn" disabled>Send like()</button>
+    </div>
+    <div class="stat">
+      <div class="pill">totalLikes: <span id="tot">-</span></div>
+      <div class="pill">myLikes: <span id="mine">-</span></div>
+      <div class="pill">cooldown: <span id="cd">-</span></div>
+    </div>
+    <p id="status" class="warn">지갑 연결 후 like()를 누르면 됩니다. (Base Mainnet)</p>
+    <footer>© BaseLikesDaily • on Base 8453</footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script>
+    const CONTRACT_ADDRESS = "0xB16A2f6a57Bbac10c67df5Ed6C24E7a9e70f6138"; // ✅ 네 컨트랙트 주소
+
+    const ABI = [
+      {"inputs":[],"name":"like","outputs":[],"stateMutability":"nonpayable","type":"function"},
+      {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastLikedAt","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"likesBy","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+      {"inputs":[],"name":"totalLikes","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
+    ];
+
+    let provider, signer, contract, account;
+
+    async function ensureBase(p){
+      const hex8453 = "0x2105";
+      const net = await p.getNetwork();
+      if (net.chainId !== 8453){
+        try {
+          await ethereum.request({ method:"wallet_switchEthereumChain", params:[{ chainId: hex8453 }] });
+        } catch (e){
+          if (e.code === 4902){
+            await ethereum.request({ method:"wallet_addEthereumChain", params:[{
+              chainId: hex8453, chainName:"Base Mainnet",
+              nativeCurrency:{ name:"ETH", symbol:"ETH", decimals:18 },
+              rpcUrls:["https://mainnet.base.org"], blockExplorerUrls:["https://basescan.org"]
+            }]});
+          } else { throw e; }
+        }
+      }
+    }
+
+    function fmtSec(s){
+      if (s<=0) return "ready";
+      const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = Math.floor(s%60);
+      return `${h}h ${m}m ${sec}s`;
+    }
+
+    async function refresh(){
+      const tot = await contract.totalLikes();
+      document.getElementById("tot").innerText = tot.toString();
+      if (account){
+        const mine = await contract.likesBy(account);
+        document.getElementById("mine").innerText = mine.toString();
+        const last = await contract.lastLikedAt(account);
+        const now = Math.floor(Date.now()/1000);
+        const remain = 86400 - (now - last.toNumber());
+        document.getElementById("cd").innerText = fmtSec(remain);
+      }
+    }
+
+    async function connect(){
+      if (!window.ethereum){ alert("Please install MetaMask"); return; }
+      await ethereum.request({ method:"eth_requestAccounts" });
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      await ensureBase(provider);
+      signer = provider.getSigner();
+      account = await signer.getAddress();
+      contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+      document.getElementById("status").innerText = "Wallet connected on Base";
+      document.getElementById("likeBtn").disabled = false;
+      await refresh();
+    }
+
+    async function like(){
+      try{
+        document.getElementById("status").innerText = "Sending tx...";
+        const tx = await contract.like();
+        document.getElementById("status").innerText = "Waiting confirmation... " + tx.hash;
+        await tx.wait();
+        await refresh();
+        document.getElementById("status").innerText = "✅ Done! Thanks for your like.";
+      }catch(e){
+        document.getElementById("status").innerText = "❌ " + (e?.message || e);
+      }
+    }
+
+    document.getElementById("connect").onclick = connect;
+    document.getElementById("likeBtn").onclick = like;
+  </script>
+</body>
+</html>
